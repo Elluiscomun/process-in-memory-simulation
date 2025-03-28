@@ -54,4 +54,4 @@ function generateMemoryframe(amount) {
 }
 
 
-
+export { generateMemoryframe };

@@ -1,3 +1,4 @@
+import { generateMemoryframe } from './main.js';
 // Selección de elementos
 const modal = document.querySelector('#settingsModal');
 const closeButton = document.querySelector('.close-button');
@@ -26,22 +27,25 @@ partitioningSelect.addEventListener('change', () => {
     }
 });
 
-// Función para eliminar todos los frames existentes
+// Función para eliminar solo los frames con la clase "main-memory-address-frame"
 function clearMemoryFrames() {
-    while (memoryTableContainer.firstChild) {
-        memoryTableContainer.removeChild(memoryTableContainer.firstChild);
-    }
+    const frames = memoryTableContainer.querySelectorAll('.main-memory-address-frame');
+    frames.forEach((frame) => frame.remove());
 }
 
-// Abrir la ventana modal
+// Función para abrir la ventana modal
 function openSettingsModal() {
     modal.style.display = 'block';
 }
 
-// Cerrar la ventana modal
+// Función para cerrar la ventana modal
 function closeSettingsModal() {
     modal.style.display = 'none';
 }
+
+// Exponer las funciones al ámbito global
+window.openSettingsModal = openSettingsModal;
+window.closeSettingsModal = closeSettingsModal;
 
 // Cerrar la ventana modal al hacer clic fuera del contenido
 window.addEventListener('click', (event) => {
@@ -64,7 +68,7 @@ settingsForm.addEventListener('submit', (event) => {
 
     console.log('Configuración guardada:', window.appSettings);
 
-    // Elimina todos los frames existentes
+    // Elimina solo los frames existentes con la clase "main-memory-address-frame"
     clearMemoryFrames();
 
     // Cierra la ventana modal

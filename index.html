@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="styles/styles.css">
     <link rel="stylesheet" href="styles/settings.css">
     <link rel="stylesheet" href="styles/main-memory-table.css">
+    <link rel="stylesheet" href="styles/create-process.css">
 </head>
 <body>
     <div class="board">
@@ -22,7 +23,8 @@
                 <div class="resource-container">
                     <div class="resource">
                         <div class="io-source-container">
-                            <div class="io-source">
+                            <div id="ioSource" class="io-source">
+                                
                             </div>
                             <p class="second-memory-title">I/O</p>
                         </div>
@@ -42,7 +44,7 @@
                 <div>
                     <p class="second-memory-title">MAIN MEMORY</p>
                     <div class="main-memory">
-                        <div class="main-memory-table">
+                        <div id="mainMemoryTable" class="main-memory-table">
 
                             <div class="main-memory-address-box">
                                 <div class="main-memory-address-box-address">
@@ -144,9 +146,9 @@
         </div>
     </div>
         
-    <script src="scripts/settings.js"></script>
-    <script src="scripts/main.js"></script>
-    
+    <script type="module" src="scripts/settings.js"></script>
+    <script type="module" src="scripts/main.js"></script>
+    <script type="module" src="scripts/process.js"></script>
     
 </body>
 </html>
