@@ -1,4 +1,4 @@
-import { generateMemoryframe } from './main.js';
+import { generateMemoryframe, renderMemoryTable } from './main.js';
 // Selección de elementos
 const modal = document.querySelector('#settingsModal');
 const closeButton = document.querySelector('.close-button');
@@ -35,6 +35,7 @@ function clearMemoryFrames() {
 
 // Función para abrir la ventana modal
 function openSettingsModal() {
+    location.reload();
     modal.style.display = 'block';
 }
 
@@ -74,6 +75,26 @@ settingsForm.addEventListener('submit', (event) => {
     // Cierra la ventana modal
     closeSettingsModal();
 
+    
     // Genera nuevos frames (puedes ajustar el número según sea necesario)
     generateMemoryframe(3);
+
+    clearVariables(); // Llama a la función para limpiar las variables globales
+
 });
+
+function clearVariables(){
+    const cpuSource = document.querySelector('#cpuSource');
+    cpuSource.textContent = '';
+
+    window.memoryFrames = [];
+    window.address_memory_last = 1;
+    window.pid_count = 1;
+
+    window.waitingForCPU = []; // Procesos esperando CPU
+    window.waitingForResource = []; // Procesos esperando recursos
+    window.terminatedProcesses = []; // Procesos terminados
+    window.processList = []; // Lista de procesos
+
+    if(ioSource.firstChild) ioSource.removeChild(ioSource.firstChild);
+}
