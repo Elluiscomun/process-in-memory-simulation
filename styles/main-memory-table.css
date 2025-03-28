@@ -1,0 +1,68 @@
+.main-memory-table {
+    width: 100%;
+    height: 100%;
+    max-height: 400px; /* Altura máxima para el contenedor */
+    overflow-y: auto; /* Habilita el scroll vertical si el contenido excede la altura */
+    border: 1px solid #000; /* Borde para delimitar el área */
+    background-color: #f9f9f9; /* Fondo claro para mejor visibilidad */
+    padding: 10px; /* Espaciado interno */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Sombra para un diseño más moderno */
+    border-radius: 5px; /* Bordes redondeados */
+}
+
+.main-memory-address, .main-memory-process {
+    height: 100%;
+}
+
+.main-memory-address {
+    border-right: 1px solid #000000;
+    border-radius: 0px;
+    width: 35%;
+}
+
+.main-memory-process {
+    width: 55%;
+}
+
+.main-memory-address-box {
+    display: flex;
+    width: 100%;
+    justify-content: space-between; /* Espaciado entre dirección y proceso */
+    padding: 5px;
+    border: 1px solid #ccc; /* Borde para cada bloque */
+    border-radius: 5px; /* Bordes redondeados */
+    background-color: #f4f4f4; /* Fondo claro */
+    margin-bottom: 5px; /* Espaciado entre bloques */
+}
+
+.main-memory-address-box-title {
+    color: #000;
+    font-size: 0.9rem;
+    font-weight: 500; /* Peso de fuente moderado */
+}
+
+.main-memory-address-frame {
+    border: 1px solid #000; /* Borde para cada frame */
+    margin-bottom: 10px; /* Espaciado entre framees */
+    padding: 5px; /* Espaciado interno */
+    border-radius: 5px; /* Bordes redondeados */
+    background-color: #fff; /* Fondo blanco */
+}
+
+.main-memory-address-box-address, .main-memory-address-box-process {
+}
+
+.main-memory-address-box-address {
+    width: 35%;
+    justify-content: center;
+    display: flex;
+    align-items: center; /* Centra verticalmente el texto */
+}
+
+.main-memory-address-box-process {
+    width: 65%;
+    display: flex;
+    align-items: center; /* Centra verticalmente el texto */
+    justify-content: center;
+    gap: 10px;
+}

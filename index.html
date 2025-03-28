@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Process Simulation</title>
+    <link rel="stylesheet" href="styles/styles.css">
+    <link rel="stylesheet" href="styles/settings.css">
+    <link rel="stylesheet" href="styles/main-memory-table.css">
+</head>
+<body>
+    <div class="board">
+        <div class="computer">
+            <div class="left-side">
+                <div class="second-memory">
+                    <p class="second-memory-title">HARD DISK</p>
+                    <div class="second-memory-space">
+    
+                    </div>
+                </div>
+    
+                <div class="resource-container">
+                    <div class="resource">
+                        <div class="io-source-container">
+                            <div class="io-source">
+                            </div>
+                            <p class="second-memory-title">I/O</p>
+                        </div>
+                        
+                        <div class="io-source-container">
+                            <div class="cpu-source">
+    
+                            </div>
+                            <p class="second-memory-title">CPU</p>
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+    
+            <div class="rigth-side">
+                <div>
+                    <p class="second-memory-title">MAIN MEMORY</p>
+                    <div class="main-memory">
+                        <div class="main-memory-table">
+
+                            <div class="main-memory-address-box">
+                                <div class="main-memory-address-box-address">
+                                    <p class="main-memory-address-box-title">Address</p>
+                                </div>
+                                
+
+                                <div class="main-memory-address-box-process">
+                                    <p class="main-memory-address-box-title">Process</p>
+                                </div>
+                            </div>
+                            
+                            <div class="main-memory-address-frame">
+                                <div class="main-memory-address-box">
+                                    <div class="main-memory-address-box-address">
+                                        <p class="main-memory-address-box-title">0*1000</p>
+                                    </div>
+
+                                    <div class="main-memory-address-box-process">
+                                        <p class="main-memory-address-box-title">PID: 1</p>
+                                        <p class="main-memory-address-box-title">Status: Created</p>
+                                    </div>
+                                    
+                                </div>
+
+                                <div class="main-memory-address-box">
+                                    <div class="main-memory-address-box-address">
+                                        <p class="main-memory-address-box-title">0*1000</p>
+                                    </div>
+
+                                    <div class="main-memory-address-box-process">
+                                        <p class="main-memory-address-box-title">PID: 1</p>
+                                        <p class="main-memory-address-box-title">Status: Created</p>
+                                    </div>
+                                    
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+
+        <div class="controls">
+            <button id="addProcess">Create Process</button>
+            <button id="addProcess">Pause Simulation</button>
+            <button id="addProcess" onclick="openSettingsModal()">Settings</button>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div id="settingsModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" onclick="closeSettingsModal()">&times;</span>
+            <h2>Application Settings</h2>
+            
+            <form id="settingsForm">
+                <!-- Process Scheduler -->
+                <label for="scheduler">Process Scheduler:</label>
+                <select id="scheduler" name="scheduler">
+                    <option value="fcfs">First Come First Serve (FCFS)</option>
+                    <option value="rr">Round Robin (RR)</option>
+                </select>
+
+                <!-- Memory Manager Scheme -->
+                <label for="memoryScheme">Memory Manager Scheme:</label>
+                <select id="memoryScheme" name="memoryScheme">
+                    <option value="contiguous">Contiguous</option>
+                    <option value="non-contiguous">Non-Contiguous</option>
+                </select>
+
+                <!-- Partitioning -->
+                <label for="partitioning">Partitioning:</label>
+                <select id="partitioning" name="partitioning">
+                    <option value="fixed">Fixed</option>
+                    <option value="dynamic">Dynamic</option>
+                </select>
+
+                <!-- Frame Size -->
+                <label for="frameSize">Frame Size:</label>
+                <input type="number" id="frameSize" name="frameSize" value="1" min="1"  >
+
+                <!-- System Size -->
+                <label for="systemSize">System Size:</label>
+                <select id="systemSize" name="systemSize">
+                    <option value="32">32 bytes</option>
+                    <option value="64">64 bytes</option>
+                </select>
+
+                <!-- Unit Time -->
+                <label for="unitTime">Unit Time (in seconds):</label>
+                <input type="number" id="unitTime" name="unitTime" value="3" min="1">
+
+                <!-- Save Button -->
+                <button type="submit" id="saveSettings">Save Settings</button>
+            </form>
+        </div>
+    </div>
+        
+    <script src="scripts/settings.js"></script>
+    <script src="scripts/main.js"></script>
+    
+    
+</body>
+</html>
