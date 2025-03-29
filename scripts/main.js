@@ -14,7 +14,7 @@ function generateMemoryframe(amount) {
         const frame = []; // Crear un nuevo frame (fila en la matriz)
 
         
-        if(window.appSettings.partitioning === 'dynamic') {
+        if(window.appSettings.partitioning === 'dynamic' || window.appSettings.partitioning === 'segmentation') {
             frameSize=Math.floor(Math.random() * (7 - 2 + 1)) + 2;
         }
         
@@ -85,7 +85,7 @@ function renderMemoryTable() {
 
             // Mostrar el PID y el estado del proceso si existe
             if (block.process) {
-                processText.textContent = `PID: ${block.process.pid}, Status: ${block.process.status}`;
+                processText.textContent = `PID: ${block.process.pid}, Status: ${block.process.status}, Burst: ${block.process.burstTime}`;
             } else {
                 processText.textContent = ''; // Si no hay proceso, dejar vacío
             }
@@ -104,4 +104,65 @@ function renderMemoryTable() {
     });
 }
 
-export { generateMemoryframe, renderMemoryTable };
+// Función para renderizar la tabla de paginación en el HTML
+function renderPagingTable() {
+    const secondMemory = document.querySelector('#secondMemory');
+    secondMemory.innerHTML = ''; // Limpiar la tabla
+
+    // Crear encabezados de la tabla
+    const header = document.createElement('div');
+    header.classList.add('paging-header');
+    header.innerHTML = `
+        <div>PID</div>
+        <div>Frame Number</div>
+        <div>Burst Time</div>
+        <div>Status</div>
+    `;
+    secondMemory.appendChild(header);
+
+    // Agregar filas para cada entrada en la tabla de paginación
+    window.pagingTable.forEach(entry => {
+        const row = document.createElement('div');
+        row.classList.add('paging-row');
+        row.innerHTML = `
+            <div>${entry.pid}</div>
+            <div>${entry.frameNumber}</div>
+            <div>${entry.burstTime}</div>
+            <div>${entry.status}</div>
+        `;
+        secondMemory.appendChild(row);
+    });
+}
+
+function renderSegmentTable() {
+    const secondMemory = document.querySelector('#secondMemory');
+    secondMemory.innerHTML = ''; // Limpiar la tabla
+
+    // Crear encabezados de la tabla
+    const header = document.createElement('div');
+    header.classList.add('segment-header');
+    header.innerHTML = `
+        <div>PID</div>
+        <div>Segment ID</div>
+        <div>Base Address</div>
+        <div>Limit (Bytes)</div>
+        <div>Burst</div>
+    `;
+    secondMemory.appendChild(header);
+
+    // Agregar filas para cada segmento en la tabla de segmentación
+    window.segmentTable.forEach(entry => {
+        const row = document.createElement('div');
+        row.classList.add('segment-row');
+        row.innerHTML = `
+            <div>${entry.pid}</div>
+            <div>${entry.segmentId}</div>
+            <div>${entry.baseAddress || 'Not Assigned'}</div>
+            <div>${entry.limit}</div>
+            <div>${entry.burstTime}</div>
+        `;
+        secondMemory.appendChild(row);
+    });
+}
+
+export { generateMemoryframe, renderMemoryTable, renderPagingTable, renderSegmentTable };

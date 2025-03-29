@@ -46,7 +46,7 @@
     background-color: #4CAF50; /* Verde para éxito */
 }
 
-.popup.error {
+.error {
     background-color: #f44336; /* Rojo para error */
 }
 

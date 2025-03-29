@@ -1,0 +1,43 @@
+/* Contenedor de la tabla de segmentación */
+#seconMemory {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+    padding: 10px;
+    max-height: 300px;
+    overflow-y: auto;
+    font-family: Arial, sans-serif;
+}
+
+/* Encabezado de la tabla */
+.segment-header {
+    display: flex;
+    justify-content: space-between;
+    font-weight: bold;
+    background-color: #e0e0e0;
+    padding: 5px 10px;
+    border-bottom: 2px solid #ccc;
+    text-align: center;
+}
+
+/* Filas de la tabla */
+.segment-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 5px 10px;
+    border-bottom: 1px solid #ddd;
+    text-align: center;
+}
+
+/* Alternar colores para las filas */
+.segment-row:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+/* Resaltar filas al pasar el mouse */
+.segment-row:hover {
+    background-color: #d9edf7;
+    cursor: pointer;
+}

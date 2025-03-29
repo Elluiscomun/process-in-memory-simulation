@@ -1,5 +1,5 @@
 // Importar funciones necesarias
-import { generateMemoryframe, renderMemoryTable } from './main.js';
+import { generateMemoryframe, renderMemoryTable, renderPagingTable, renderSegmentTable } from './main.js';
 import PCB from './models/PCB.js';
 
 // Selección de elementos
@@ -9,11 +9,15 @@ const ioSource = document.querySelector('#ioSource');
 
 // Variable global para almacenar los procesos creados
 window.processList = [];
+window.segmentTable = []; // Tabla global para almacenar los segmentos de los procesos
 
 // Variables globales para manejar los procesos en diferentes estados
 window.waitingForCPU = []; // Procesos esperando CPU
-window.waitingForResource = []; // Procesos esperando recursos
+window.waitingForIO = []; // Procesos esperando recursos
 window.terminatedProcesses = []; // Procesos terminados
+
+// Estructura global para la tabla de paginación
+window.pagingTable = [];
 
 // Función para generar un tamaño de proceso aleatorio entre 4 y 40
 function generateProcessSize() {
@@ -150,10 +154,9 @@ function createProcess() {
     const burstTime = Math.floor(Math.random() * 10) + 1; // Tiempo de ráfaga aleatorio
     const arrivalTime = Date.now(); // Usar la marca de tiempo actual como tiempo de llegada
     const status = 'Created'; // Estado inicial del proceso
-    const burst = 1; // Número de ráfagas inicial
 
     // Crear una nueva instancia de PCB
-    const newProcess = new PCB(pid, status, size, burst, arrivalTime, burstTime);
+    const newProcess = new PCB(pid, status, size, arrivalTime, burstTime);
 
     // Agregar el proceso a la lista global
     processList.push(newProcess);
@@ -200,6 +203,14 @@ function animateScanIoSource() {
 async function handleAddProcess() {
     const process = createProcess();
 
+    if (window.appSettings.partitioning === 'segmentation') {
+        process.createSegments();
+        allocateSegmentsToMemory(process); // Asignar los segmentos a memoria
+        
+        showPopup(`Process ${process.pid} created with segmentation!`, 'success');
+        return;
+    }
+
     // Animar el escaneo de los frames
     await animateScanFrames();
 
@@ -244,7 +255,7 @@ async function handleAddProcess() {
     process.updateStatus('Created'); // Mantener el estado en "Created"
     renderMemoryTable(); // Actualizar la tabla con el estado actual
     showPopup(`Process ${process.pid} could not transition to Ready.`, 'error');
-    waitingForResource.push(process); // Agregar a la lista de espera por recursos
+    waitingForIO.push(process); // Agregar a la lista de espera por recursos
 }
 
 // Función para verificar si ioSource está vacío
@@ -269,100 +280,313 @@ function showPopup(message, type) {
 
 let isProcessing = false; // Indicador para evitar llamadas concurrentes
 
-// Función para procesar la cola de procesos en estado "Ready"
-async function processReadyQueue() {
-    if (isProcessing) return; // Salir si ya se está procesando
-    isProcessing = true; // Marcar como en ejecución
-
-    // Filtrar los procesos en estado "Ready"
-    const readyProcesses = processList.filter(process => process.status === 'Ready');
-
-    if (readyProcesses.length === 0) {
-        console.error('No processes in Ready state to process.');
-        isProcessing = false; // Marcar como no en ejecución
-        return;
+// Función para verificar el número de frame de un proceso
+function findFrameNumber(pid) {
+    for (let i = 0; i < window.memoryFrames.length; i++) {
+        const frame = window.memoryFrames[i];
+        if (frame.some(block => block.process && block.process.pid === pid)) {
+            return i; // Retornar el índice del frame
+        }
     }
+    return -1; // No encontrado
+}
 
-    // Ordenar los procesos por tiempo de llegada (arrivalTime)
-    readyProcesses.sort((a, b) => a.arrivalTime - b.arrivalTime);
+// Función para verificar la tabla de paginación
+function checkPagingTable() {
+    if (window.pagingTable.length === 0) return;
 
-    // Atender el primer proceso en la cola
-    const processToRun = readyProcesses[0];
-    console.log(`Processing PID=${processToRun.pid}...`);
-
-    // Cambiar el estado del proceso a "Executing"
-    processToRun.updateStatus('Executing');
-    renderMemoryTable(); // Actualizar la tabla con el nuevo estado
-
-    // Mostrar el proceso en el CPU
-    const cpuSource = document.querySelector('#cpuSource');
-    const cpuProcessDiv = document.createElement('div');
-    cpuProcessDiv.innerHTML = `<p>PID: ${processToRun.pid}</p><p>Status: Executing</p>`;
-    cpuSource.appendChild(cpuProcessDiv); // Agregar el div al contenedor de CPU
-
-    // Convertir unitTime de segundos a milisegundos
-    const unitTimeInMs = window.appSettings.unitTime * 1000;
-
-    // Simular el tiempo de ejecución del proceso (burstTime * unitTime)
-    await new Promise(resolve => setTimeout(resolve, processToRun.burstTime * unitTimeInMs));
-
-    // Eliminar el div del proceso de CPU
-    if(cpuSource.firstChild) cpuSource.removeChild(cpuProcessDiv); // Eliminar el div del contenedor de CPU
-
-    // Mover el proceso a IO y cambiar su estado
     const ioSource = document.querySelector('#ioSource');
-    const ioProcessDiv = document.createElement('div');
-    ioProcessDiv.innerHTML = `<p>PID: ${processToRun.pid}</p><p>Status: ${processToRun.status}</p>`;
-    ioSource.appendChild(ioProcessDiv); // Agregar el div al contenedor de IO
 
-    // Simular el tiempo en IO antes de eliminarlo
-    await new Promise(resolve => setTimeout(resolve, unitTimeInMs)); // Simular 1 segundo en IO
+    if (ioSource.children.length === 0) {
+        const processInPaging = window.pagingTable[0]; // Sacar el primer proceso de la tabla
+        window.pagingTable = window.pagingTable.filter(p => p.pid !== processInPaging.pid); // Eliminar de la tabla de paginación
 
-    // Eliminar el div del proceso de IO
-    ioSource.removeChild(ioProcessDiv); // Eliminar el div del contenedor de IO
+        const process = processList.find(p => p.pid === processInPaging.pid);
+        
+        if (process) {
+            process.updateStatus('Ready');
+            process.realativeArrivalTime = Date.now(); // Actualizar el tiempo de llegada
+            renderMemoryTable();
+            console.log(`Process PID=${process.pid} moved from Paging to Ready.`);
+        }
+
+        renderPagingTable();
+    }
+}
+
+// Función para mover procesos de la tabla de paginación a waitingForCPU
+function moveFromPagingToWaitingForCPU() {
+    if (window.pagingTable.length === 0) return; // No hay procesos en la tabla de paginación
+
+    const processEntry = window.pagingTable[0]; // Sacar el primer proceso de la tabla
     
-    // Cambiar el estado del proceso a "Terminated"
-    processToRun.updateStatus('Terminated');
+    window.pagingTable = window.pagingTable.filter(p => p.pid === processEntry.pid);
+    console.error(window.pagingTable);
+    const process = window.processList.find(p => p.pid === processEntry.pid);
 
-    // Mover el proceso a la lista de procesos terminados
-    terminatedProcesses.push(processToRun);
 
-    // Eliminar el proceso de processList
-    const index = processList.indexOf(processToRun);
-    if (index !== -1) {
-        processList.splice(index, 1);
+    if (process && isIoSourceEmpty()) {
+        process.updateStatus('Ready');
+        process.realativeArrivalTime = Date.now(); // Actualizar el tiempo de llegada
+        console.log(`Process PID=${process.pid} moved from Paging Table to WaitingForCPU.`);
     }
 
-    // Verificar si hay procesos en waitingForResource
-    if (waitingForResource.length > 0) {
-        const nextProcess = waitingForResource.shift(); // Sacar el primer proceso de la lista
-        nextProcess.updateStatus('Ready'); // Cambiar su estado a "Ready"
-        processList.push(nextProcess); // Moverlo a la lista de procesos listos
-        console.log(`Process PID=${nextProcess.pid} moved from WaitingForResource to Ready.`);
-        renderMemoryTable(); // Actualizar la tabla con el nuevo estado
-    }
+    // Actualizar la tabla de paginación
+    renderPagingTable();
+    renderMemoryTable(); 
+}
 
-    // Eliminar el proceso de mainMemoryTable
-    window.memoryFrames.forEach(frame => {
-        frame.forEach(block => {
-            if (block.process && block.process.pid === processToRun.pid) {
-                block.process = null; // Liberar el bloque de memoria
-            }
+// Función para mover procesos de waitingForCPU a processList
+function moveFromWaitingForCPUToProcessList() {
+    if (window.waitingForCPU.length === 0) return; // No hay procesos en waitingForCPU
+
+    const process = window.waitingForCPU[0]; // Sacar el primer proceso de la lista
+    window.waitingForCPU = window.waitingForCPU.filter(p => p.pid !== process.pid); // Eliminar de waitingForCPU
+    
+    process.updateStatus('Ready'); // Cambiar el estado del proceso a Ready
+    window.processList.push(process); // Mover el proceso de vuelta a processList
+
+    console.log(`Process PID=${process.pid} moved from WaitingForCPU to ProcessList.`);
+}
+
+// Función para mover un proceso a la tabla de paginación
+function moveToPagingTable(process) {
+    const frameNumbers = []; // Almacenar los números de frame ocupados por el proceso
+    process.updateStatus('WaitingForResource'); // Cambiar el estado del proceso a "WaitingForResource"
+    // Buscar los frames ocupados por el proceso en memoria principal
+    window.memoryFrames.forEach((frame, frameIndex) => {
+        if(frame[0].process && frame[0].process.pid === process.pid) {
+            frameNumbers.push(frameIndex); // Agregar el número de frame a la lista
+        }
+    });
+
+    // Agregar el proceso a la tabla de paginación
+    frameNumbers.forEach(frameNumber => {
+        window.pagingTable.push({
+            pid: process.pid,
+            frameNumber: frameNumber,
+            burstTime: process.burstTime, // Agregar el burstTime del proceso
+            status: 'WaitingForResource'
         });
     });
 
+    // Actualizar las tablas
+    renderMemoryTable();
+    renderPagingTable();
+
+    console.log(`Process PID=${process.pid} moved to Paging Table.`);
+}
+
+function allocateSegmentsToMemory(process) {
+    
+    process.segments.forEach(segment => {
+        let assigned = false;
+        let requiredRows = Math.ceil(segment.size / getRowCapacity()); // Filas necesarias para el segmento 
+        
+        while(!assigned){
+            // Buscar un marco vacío que pueda contener el segmento
+            for (let i = 0; i < window.memoryFrames.length; i++) {
+                const frame = window.memoryFrames[i];
+                const isFrameEmpty = frame.every(block => block.process === null);
+
+                if (isFrameEmpty && frame.length >= requiredRows) {
+                    // Asignar el segmento al marco
+                    for (let j = 0; j < requiredRows; j++) {
+                        frame[j].process = process;
+                        frame[j].segmentId = segment.segmentId; // Asociar el bloque al segmento  
+                    }
+
+                    segment.frameNumber = i; // Guardar el número de marco asignado
+                    segment.baseAddress = frame[0].address; // Dirección base del segmento
+                    assigned = true;
+
+                    if(segment.segmentId===3){
+                        process.updateStatus('Ready')
+                    }
+                    break;
+                }
+            }
+
+            // Si no se encontró un marco, generar más
+            if (!assigned) {
+                console.error(`Not enough space for segment ${segment.segmentId} of process PID=${process.pid}. Generating more frames...`);
+                generateMemoryframe(1); // Generar un marco adicional
+            }
+        }
+        
+    });
+
+    console.log(`Process PID=${process.pid} segments allocated to memory.`);
+    renderMemoryTable(); // Actualizar la tabla de memoria
+}
+
+function moveToSegmentTable(process) {
+    process.updateStatus('WaitingForResource'); // Cambiar el estado del proceso a "WaitingForResource"
+
+    // Mover cada segmento del proceso a la tabla de segmentación
+    process.segments.forEach(segment => {
+        window.segmentTable.push({
+            pid: process.pid,
+            segmentId: segment.segmentId,
+            size: segment.size,
+            baseAddress: segment.baseAddress,
+            limit: segment.limit,
+            frameNumber: segment.frameNumber || 'Not Assigned',
+            status: 'WaitingForResource',
+            burstTime: process.burstTime
+        });
+    });
+
+    // Actualizar la tabla de segmentación en el DOM
+    renderSegmentTable();
+    renderMemoryTable();
+
+    console.log(`Process PID=${process.pid} segments moved to Segment Table.`);
+}
+
+function checkSegmentTable() {
+    if (window.segmentTable.length === 0) return;
+
+    const ioSource = document.querySelector('#ioSource');
+
+    if (ioSource.children.length === 0) {
+        const processInSegment = window.segmentTable[0]; // Sacar el primer proceso de la tabla
+        window.segmentTable = window.segmentTable.filter(p => p.pid !== processInSegment.pid); // Eliminar de la tabla de segmentos
+
+        const process = processList.find(p => p.pid === processInSegment.pid);
+
+        if (process) {
+            process.updateStatus('Ready');
+            process.realativeArrivalTime = Date.now(); // Actualizar el tiempo de llegada
+            renderMemoryTable();
+            console.log(`Process PID=${process.pid} moved from Segment Table to Ready.`);
+        }
+
+        renderSegmentTable();
+        renderMemoryTable();
+    }
+}
+
+// Función para procesar la cola de procesos en estado "Ready"
+async function processReadyQueue() {
+    if (isProcessing) return; // Salir si ya se está procesando
+    isProcessing = true;
+
+    if(window.appSettings.scheduler === 'rr' && window.appSettings.partitioning === 'paging') {
+        checkPagingTable();
+        moveFromPagingToWaitingForCPU();
+    }else if(window.appSettings.scheduler === 'rr' && window.appSettings.partitioning === 'segmentation'){
+        checkSegmentTable();
+    }
     
 
-    console.log(`Process PID=${processToRun.pid} has been terminated.`);
-    renderMemoryTable(); // Actualizar la tabla
-    showPopup(`Process ${processToRun.pid} has been terminated.`, 'success');
+    const readyProcesses = processList.filter(process => process.status === 'Ready');
+    console.error(processList.filter(process => process.status === 'Ready'));
 
-    isProcessing = false; // Marcar como no en ejecución
+    if (readyProcesses.length === 0) {
+        console.error('No processes in Ready state to process.');
+        const waitingProcesses = processList.filter(process => process.status === 'WaitingForResource');
+        if(waitingProcesses.length === 0){
+            isProcessing = false;
+            return;
+        } 
+    }
+
+    // Ordenar los procesos por tiempo de llegada
+    readyProcesses.sort((a, b) => a.realativeArrivalTime - b.realativeArrivalTime);
+
+    const processToRun = readyProcesses[0];
+    console.log(`Processing PID=${processToRun.pid}...`);
+
+    processToRun.updateStatus('Executing');
+    renderMemoryTable();
+
+    const cpuSource = document.querySelector('#cpuSource');
+    const cpuProcessDiv = document.createElement('div');
+    cpuProcessDiv.innerHTML = `<p>PID: ${processToRun.pid}</p><p>Status: Executing</p>`;
+    cpuSource.appendChild(cpuProcessDiv);
+
+    // Convertir unitTime de segundos a milisegundos
+    const unitTimeInMs = window.appSettings.unitTime * 1000;
+    const quantumInMs = window.appSettings.quantum * unitTimeInMs;
+
+    // Simular el tiempo de ejecución del proceso
+    if(window.appSettings.scheduler === 'rr'){
+        await new Promise(resolve => setTimeout(resolve, Math.min(quantumInMs, processToRun.burstTime * unitTimeInMs)));
+        processToRun.burstTime -= window.appSettings.quantum;// Reducir el burstTime del proceso
+    }else{
+        await new Promise(resolve => setTimeout(resolve, processToRun.burstTime * unitTimeInMs));
+    } 
+
+    // Eliminar el proceso del CPU
+    if(cpuSource.firstChild) cpuSource.removeChild(cpuProcessDiv);
+
+    
+    if (processToRun.burstTime > 0 && window.appSettings.scheduler === 'rr' && window.appSettings.partitioning === 'paging') {
+        
+        // Si el proceso aún tiene burstTime, enviarlo a la tabla de paginación
+        moveToPagingTable(processToRun);
+
+    }else if(processToRun.burstTime > 0 && window.appSettings.scheduler === 'rr' && window.appSettings.partitioning === 'segmentation'){
+        moveToSegmentTable(processToRun);
+    }else{
+        // Si el proceso ha terminado, enviarlo a IO
+        const ioSource = document.querySelector('#ioSource');
+        const ioProcessDiv = document.createElement('div');
+        ioProcessDiv.innerHTML = `<p>PID: ${processToRun.pid}</p><p>Status: ${processToRun.status}</p>`;
+        ioSource.appendChild(ioProcessDiv); // Agregar el div al contenedor de IO
+
+        // Simular el tiempo en IO antes de eliminarlo
+        await new Promise(resolve => setTimeout(resolve, unitTimeInMs)); // Simular 1 segundo en IO
+
+        // Eliminar el div del proceso de IO
+        ioSource.removeChild(ioProcessDiv); // Eliminar el div del contenedor de IO
+        
+        // Cambiar el estado del proceso a "Terminated"
+        processToRun.updateStatus('Terminated');
+
+        // Mover el proceso a la lista de procesos terminados
+        terminatedProcesses.push(processToRun);
+
+        // Eliminar el proceso de processList
+        const index = processList.indexOf(processToRun);
+        if (index !== -1) {
+            processList.splice(index, 1);
+        }
+
+        // Verificar si hay procesos en waitingForResource
+        if (waitingForIO.length > 0) {
+            const nextProcess = waitingForIO.shift(); // Sacar el primer proceso de la lista
+            nextProcess.updateStatus('Ready'); // Cambiar su estado a "Ready"
+            processList.push(nextProcess); // Moverlo a la lista de procesos listos
+            console.log(`Process PID=${nextProcess.pid} moved from WaitingForResource to Ready.`);
+            renderMemoryTable(); // Actualizar la tabla con el nuevo estado
+        }
+
+        // Eliminar el proceso de mainMemoryTable
+        window.memoryFrames.forEach(frame => {
+            frame.forEach(block => {
+                if (block.process && block.process.pid === processToRun.pid) {
+                    block.process = null; // Liberar el bloque de memoria
+                }
+            });
+        });
+
+        
+
+        console.log(`Process PID=${processToRun.pid} has been terminated.`);
+        renderMemoryTable(); // Actualizar la tabla
+        showPopup(`Process ${processToRun.pid} has been terminated.`, 'success');
+        
+    }
+
+    console.error("llegue casi al final");
+    isProcessing = false;
 }
 
 // Observador para verificar si hay procesos en estado "Ready"
 setInterval(() => {
-    const readyProcesses = processList.filter(process => process.status === 'Ready');
+    const readyProcesses = processList.filter(process => process.status === 'Ready' || 'WaitingForResource');
     if (readyProcesses.length > 0) {
         processReadyQueue(); // Llamar a la función si hay procesos en estado "Ready"
     }

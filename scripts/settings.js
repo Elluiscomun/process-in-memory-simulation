@@ -6,6 +6,13 @@ const settingsForm = document.querySelector('#settingsForm');
 const partitioningSelect = document.querySelector('#partitioning');
 const frameSizeInput = document.querySelector('#frameSize');
 const memoryTableContainer = document.querySelector('.main-memory-table'); // Contenedor principal de los frames
+const schedulerSelect = document.querySelector('#scheduler');
+const quantumInput = document.querySelector('#quantum');
+
+// Seleccionar los elementos del DOM
+const memorySchemeSelect = document.querySelector('#memoryScheme');
+const pagingOption = partitioningSelect.querySelector('option[value="paging"]');
+const segmentationOption = partitioningSelect.querySelector('option[value="segmentation"]');
 
 // Objeto global para almacenar la configuración
 window.appSettings = {
@@ -14,18 +21,56 @@ window.appSettings = {
     partitioning: 'fixed', // Valor predeterminado
     frameSize: 1, // Valor predeterminado
     systemSize: 32, // Valor predeterminado
-    unitTime: 3 // Valor predeterminado
+    unitTime: 3, // Valor predeterminado
+    quantum: 1 // Valor predeterminado para Round Robin
 };
 
 // Habilitar/deshabilitar el tamaño de marco según la partición seleccionada
 partitioningSelect.addEventListener('change', () => {
-    if (partitioningSelect.value === 'fixed') {
+    if (partitioningSelect.value === 'fixed' || partitioningSelect.value === 'paging') {
         frameSizeInput.disabled = false;
     } else {
         frameSizeInput.disabled = true;
         frameSizeInput.value = 1; // Restablecer a 1 si no es dinámico
     }
 });
+
+// Habilitar/deshabilitar el quantum según el planificador seleccionado
+schedulerSelect.addEventListener('change', () => {
+    if (schedulerSelect.value === 'rr') {
+        quantumInput.disabled = false; // Habilitar quantum para Round Robin
+    } else {
+        quantumInput.disabled = true; // Deshabilitar quantum para otros planificadores
+        quantumInput.value = 100; // Restablecer el valor predeterminado
+    }
+});
+
+// Función para habilitar/deshabilitar opciones de partición
+function updatePartitioningOptions() {
+    if (memorySchemeSelect.value === 'non-contiguous') {
+        // Habilitar Paging y Segmentation
+        pagingOption.disabled = false;
+        segmentationOption.disabled = false;
+
+        // Deshabilitar Fixed y Dynamic
+        partitioningSelect.querySelector('option[value="fixed"]').disabled = true;
+        partitioningSelect.querySelector('option[value="dynamic"]').disabled = true;
+    } else if (memorySchemeSelect.value === 'contiguous') {
+        // Habilitar Fixed y Dynamic
+        partitioningSelect.querySelector('option[value="fixed"]').disabled = false;
+        partitioningSelect.querySelector('option[value="dynamic"]').disabled = false;
+
+        // Deshabilitar Paging y Segmentation
+        pagingOption.disabled = true;
+        segmentationOption.disabled = true;
+    }
+}
+
+// Agregar evento al selector de esquema de memoria
+memorySchemeSelect.addEventListener('change', updatePartitioningOptions);
+
+// Llamar a la función al cargar la página para establecer el estado inicial
+updatePartitioningOptions();
 
 // Función para eliminar solo los frames con la clase "main-memory-address-frame"
 function clearMemoryFrames() {
@@ -67,6 +112,11 @@ settingsForm.addEventListener('submit', (event) => {
     window.appSettings.systemSize = parseInt(document.querySelector('#systemSize').value, 10);
     window.appSettings.unitTime = parseInt(document.querySelector('#unitTime').value, 10);
 
+    // Guardar quantum solo si el scheduler es Round Robin
+    if (window.appSettings.scheduler === 'rr') {
+        window.appSettings.quantum = parseInt(quantumInput.value, 10);
+    }
+
     console.log('Configuración guardada:', window.appSettings);
 
     // Elimina solo los frames existentes con la clase "main-memory-address-frame"
@@ -75,12 +125,10 @@ settingsForm.addEventListener('submit', (event) => {
     // Cierra la ventana modal
     closeSettingsModal();
 
-    
     // Genera nuevos frames (puedes ajustar el número según sea necesario)
     generateMemoryframe(3);
 
     clearVariables(); // Llama a la función para limpiar las variables globales
-
 });
 
 function clearVariables(){

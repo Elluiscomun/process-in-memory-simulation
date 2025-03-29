@@ -8,6 +8,8 @@
     <link rel="stylesheet" href="styles/settings.css">
     <link rel="stylesheet" href="styles/main-memory-table.css">
     <link rel="stylesheet" href="styles/create-process.css">
+    <link rel="stylesheet" href="styles/tables/paging.css">
+    <link rel="stylesheet" href="styles/tables/segments.css">
 </head>
 <body>
     <div class="board">
@@ -15,8 +17,8 @@
             <div class="left-side">
                 <div class="second-memory">
                     <p class="second-memory-title">HARD DISK</p>
-                    <div class="second-memory-space">
-    
+                    <div id="secondMemory" class="second-memory-space">
+                        
                     </div>
                 </div>
     
@@ -30,7 +32,7 @@
                         </div>
                         
                         <div class="io-source-container">
-                            <div class="cpu-source">
+                            <div id="cpuSource" class="cpu-source">
     
                             </div>
                             <p class="second-memory-title">CPU</p>
@@ -57,31 +59,7 @@
                                 </div>
                             </div>
                             
-                            <div class="main-memory-address-frame">
-                                <div class="main-memory-address-box">
-                                    <div class="main-memory-address-box-address">
-                                        <p class="main-memory-address-box-title">0*1000</p>
-                                    </div>
-
-                                    <div class="main-memory-address-box-process">
-                                        <p class="main-memory-address-box-title">PID: 1</p>
-                                        <p class="main-memory-address-box-title">Status: Created</p>
-                                    </div>
-                                    
-                                </div>
-
-                                <div class="main-memory-address-box">
-                                    <div class="main-memory-address-box-address">
-                                        <p class="main-memory-address-box-title">0*1000</p>
-                                    </div>
-
-                                    <div class="main-memory-address-box-process">
-                                        <p class="main-memory-address-box-title">PID: 1</p>
-                                        <p class="main-memory-address-box-title">Status: Created</p>
-                                    </div>
-                                    
-                                </div>
-                            </div>
+                            
 
                         </div>
                     </div>
@@ -123,22 +101,29 @@
                 <select id="partitioning" name="partitioning">
                     <option value="fixed">Fixed</option>
                     <option value="dynamic">Dynamic</option>
+                    <option value="paging" disabled>Paging</option>
+                    <option value="segmentation" disabled>Segmentation</option>
                 </select>
 
                 <!-- Frame Size -->
                 <label for="frameSize">Frame Size:</label>
-                <input type="number" id="frameSize" name="frameSize" value="1" min="1"  >
+                <input type="number" id="frameSize" name="frameSize" value="1" min="1">
 
                 <!-- System Size -->
                 <label for="systemSize">System Size:</label>
                 <select id="systemSize" name="systemSize">
-                    <option value="32">32 bytes</option>
-                    <option value="64">64 bytes</option>
+                    <option value="32">32 bits</option>
+                    <option value="64">64 bits</option>
                 </select>
 
                 <!-- Unit Time -->
                 <label for="unitTime">Unit Time (in seconds):</label>
                 <input type="number" id="unitTime" name="unitTime" value="3" min="1">
+
+                <!-- Quantum -->
+                <label for="quantum">Quantum (Unit Time):</label>
+                <input type="number" id="quantum" name="quantum" value="1" min="1">
+
 
                 <!-- Save Button -->
                 <button type="submit" id="saveSettings">Save Settings</button>

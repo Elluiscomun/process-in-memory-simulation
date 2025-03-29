@@ -1,0 +1,65 @@
+/* Estilo general para el contenedor de la tabla de paginación */
+#seconMemory {
+    display: flex;
+    flex-direction: column;
+    /*border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #f9f9f9;*/
+    padding: 10px;
+    max-height: 300px;
+    overflow-y: auto; /* Habilitar scroll si hay muchas filas */
+    font-family: Arial, sans-serif;
+}
+
+/* Encabezado de la tabla */
+.paging-header {
+    display: flex;
+    justify-content: space-between;
+    font-weight: bold;
+    background-color: #e0e0e0;
+    padding: 5px 10px;
+    border-bottom: 2px solid #ccc;
+    text-align: center;
+}
+
+/* Filas de la tabla */
+.paging-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 5px 10px;
+    border-bottom: 1px solid #ddd;
+    text-align: center;
+}
+
+/* Alternar colores para las filas */
+.paging-row:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+/* Última fila sin borde */
+.paging-row:last-child {
+    border-bottom: none;
+}
+
+/* Estilo para las columnas */
+.paging-header div,
+.paging-row div {
+    flex: 1;
+    padding: 5px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Resaltar filas al pasar el mouse */
+.paging-row:hover {
+    background-color: #d9edf7;
+    cursor: pointer;
+}
+
+/* Estilo para texto */
+.paging-header div,
+.paging-row div {
+    font-size: 14px;
+    color: #333;
+}
