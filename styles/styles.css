@@ -163,6 +163,38 @@ button:active {
     transform: scale(0.98); /* Reducir ligeramente el tamaño */
 }
 
+/* Estilo para el botón flotante */
+.floating-button {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #ff4d4d; /* Color de fondo */
+    color: white;
+    font-size: 14px;
+    font-weight: bold;
+    padding: 10px 15px;
+    border-radius: 50px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+    cursor: pointer;
+    z-index: 1000;
+    transition: transform 0.3s ease, background-color 0.3s ease;
+}
+
+/* Ícono del bote de basura */
+.floating-button i {
+    font-size: 18px;
+    margin-right: 8px;
+}
+
+/* Efecto hover para el botón */
+.floating-button:hover {
+    background-color: #e63939; /* Color más oscuro al pasar el mouse */
+    transform: scale(1.1); /* Aumentar ligeramente el tamaño */
+}
+
 
 
 

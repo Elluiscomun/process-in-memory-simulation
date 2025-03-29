@@ -23,7 +23,7 @@ class PCB {
     // Método para calcular el Waiting Time (WT)
     calculateWaitingTime() {
         if (this.turnaroundTime !== null && this.burstTime !== null) {
-            this.waitingTime = this.turnaroundTime - this.burstTime;
+            this.waitingTime = this.turnaroundTime - (this.burstTime*1000*window.unitTime);
         }
     }
 

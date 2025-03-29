@@ -1,0 +1,50 @@
+/* Contenedor de la tabla de procesos terminados */
+.terminated-table-container {
+    position: fixed;
+    bottom: auto;
+    right: auto;
+    background-color: #ffffff;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    box-shadow: 10px 21px 21px rgb(0 0 0 / 50%);
+    padding: 15px;
+    max-height: 80%;
+    overflow-y: auto;
+    z-index: 1000;
+    width: 80%;
+    max-width: 1200px;
+}
+
+/* Encabezado de la tabla */
+.terminated-table-container h2 {
+    margin: 0 0 10px 0;
+    font-size: 16px;
+    text-align: center;
+}
+
+/* Ajustar el diseño de las filas de la tabla */
+.terminated-row {
+    display: grid;
+    grid-template-columns: repeat(8, 1fr); /* Ocho columnas */
+    gap: 5px;
+    padding: 5px 0;
+    border-bottom: 1px solid #ddd;
+    text-align: center;
+}
+
+/* Encabezado de la tabla */
+.terminated-row:first-child {
+    font-weight: bold;
+    background-color: #f0f0f0;
+}
+
+/* Última fila sin borde */
+.terminated-row:last-child {
+    border-bottom: none;
+}
+
+/* Ajustar el texto */
+.terminated-row div {
+    font-size: 14px;
+    color: #333;
+}

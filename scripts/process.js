@@ -481,7 +481,7 @@ async function processReadyQueue() {
     
 
     const readyProcesses = processList.filter(process => process.status === 'Ready');
-    console.error(processList.filter(process => process.status === 'Ready'));
+    
 
     if (readyProcesses.length === 0) {
         console.error('No processes in Ready state to process.');
@@ -539,6 +539,8 @@ async function processReadyQueue() {
         // Simular el tiempo en IO antes de eliminarlo
         await new Promise(resolve => setTimeout(resolve, unitTimeInMs)); // Simular 1 segundo en IO
 
+        processToRun.completionTime = Date.now(); // Actualizar el tiempo de finalización
+
         // Eliminar el div del proceso de IO
         ioSource.removeChild(ioProcessDiv); // Eliminar el div del contenedor de IO
         
@@ -580,7 +582,7 @@ async function processReadyQueue() {
         
     }
 
-    console.error("llegue casi al final");
+    
     isProcessing = false;
 }
 

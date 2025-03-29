@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="styles/create-process.css">
     <link rel="stylesheet" href="styles/tables/paging.css">
     <link rel="stylesheet" href="styles/tables/segments.css">
+    <link rel="stylesheet" href="styles/tables/terminated.css">
 </head>
 <body>
     <div class="board">
@@ -130,10 +131,27 @@
             </form>
         </div>
     </div>
-        
+
+    <!-- Botón flotante -->
+    <div id="terminatedButton" class="floating-button">
+        <i class="fas fa-trash"></i>
+        <span>Terminated</span>
+    </div>
+
+    <!-- Enlace a Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    
+    <!-- Contenedor para la tabla de procesos terminados -->
+    <div id="terminatedProcessesTable" class="terminated-table-container" style="display: none;">
+        <h2>Terminated Processes</h2>
+        <div id="terminatedTableContent"></div>
+    </div>
+    
     <script type="module" src="scripts/settings.js"></script>
     <script type="module" src="scripts/main.js"></script>
     <script type="module" src="scripts/process.js"></script>
+    
+    <script type="module" src="scripts/terminated.js"></script>
     
 </body>
 </html>

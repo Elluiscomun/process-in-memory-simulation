@@ -1,4 +1,6 @@
 import { generateMemoryframe, renderMemoryTable } from './main.js';
+
+window.referenceTime = Date.now(); // Variable global para almacenar el tiempo de referencia
 // Selección de elementos
 const modal = document.querySelector('#settingsModal');
 const closeButton = document.querySelector('.close-button');
