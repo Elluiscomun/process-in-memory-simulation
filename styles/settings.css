@@ -84,3 +84,35 @@ button {
 button:hover {
     background-color: #45a049;
 }
+
+/* Estilo para el botón en estado de pausa */
+.pause-button {
+    background-color: #ff4d4d; /* Rojo */
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.pause-button:hover {
+    background-color: #e63939; /* Rojo más oscuro */
+}
+
+/* Estilo para el botón en estado de inicio */
+.start-button {
+    background-color: #4caf50; /* Verde */
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.start-button:hover {
+    background-color: #45a049; /* Verde más oscuro */
+}

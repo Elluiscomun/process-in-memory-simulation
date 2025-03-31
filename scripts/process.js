@@ -61,7 +61,10 @@ function findContiguousSpace(processSize) {
     return -1; // No se encontró espacio contiguo
 }
 
-// Función para asignar un proceso a memoria
+/**
+ * Función para asignar un proceso a memoria contigua.
+ * @param {Object} process - El proceso que se desea asignar a memoria.
+ */
 function allocateProcessToMemory(process) {
     let sizeProcess = process.size; // Tamaño del proceso
     const rowCapacity = getRowCapacity(); // Capacidad de cada fila
@@ -589,7 +592,7 @@ async function processReadyQueue() {
 // Observador para verificar si hay procesos en estado "Ready"
 setInterval(() => {
     const readyProcesses = processList.filter(process => process.status === 'Ready' || 'WaitingForResource');
-    if (readyProcesses.length > 0) {
+    if (readyProcesses.length > 0 && window.statusSimulation) {
         processReadyQueue(); // Llamar a la función si hay procesos en estado "Ready"
     }
 }, 1000); // Verificar cada 1 segundo

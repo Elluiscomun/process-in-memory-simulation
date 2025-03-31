@@ -1,6 +1,8 @@
 import { generateMemoryframe, renderMemoryTable } from './main.js';
 
+window.statusSimulation = true;
 window.referenceTime = Date.now(); // Variable global para almacenar el tiempo de referencia
+
 // Selección de elementos
 const modal = document.querySelector('#settingsModal');
 const closeButton = document.querySelector('.close-button');
@@ -10,6 +12,7 @@ const frameSizeInput = document.querySelector('#frameSize');
 const memoryTableContainer = document.querySelector('.main-memory-table'); // Contenedor principal de los frames
 const schedulerSelect = document.querySelector('#scheduler');
 const quantumInput = document.querySelector('#quantum');
+const toggleSimulationButton = document.querySelector('#toggleSimulation');
 
 // Seleccionar los elementos del DOM
 const memorySchemeSelect = document.querySelector('#memoryScheme');
@@ -53,6 +56,7 @@ function updatePartitioningOptions() {
         // Habilitar Paging y Segmentation
         pagingOption.disabled = false;
         segmentationOption.disabled = false;
+        partitioningSelect.value = 'paging'; // Establecer valor predeterminado a Paging
 
         // Deshabilitar Fixed y Dynamic
         partitioningSelect.querySelector('option[value="fixed"]').disabled = true;
@@ -61,6 +65,7 @@ function updatePartitioningOptions() {
         // Habilitar Fixed y Dynamic
         partitioningSelect.querySelector('option[value="fixed"]').disabled = false;
         partitioningSelect.querySelector('option[value="dynamic"]').disabled = false;
+        partitioningSelect.value = 'fixed'; 
 
         // Deshabilitar Paging y Segmentation
         pagingOption.disabled = true;
@@ -99,6 +104,24 @@ window.closeSettingsModal = closeSettingsModal;
 window.addEventListener('click', (event) => {
     if (event.target === modal) {
         closeSettingsModal();
+    }
+});
+
+// Habilitar/deshabilitar el quantum según el planificador seleccionado
+schedulerSelect.addEventListener('change', () => {
+    if (schedulerSelect.value === 'rr') {
+        quantumInput.disabled = false; // Habilitar quantum para Round Robin
+        memorySchemeSelect.value = 'non-contiguous';
+        memorySchemeSelect.querySelector('option[value="contiguous"]').disabled = true; // Deshabilitar contiguo
+        memorySchemeSelect.querySelector('option[value="non-contiguous"]').disabled = false;
+        updatePartitioningOptions();
+    } else {
+        quantumInput.disabled = true; // Deshabilitar quantum para otros planificadores
+        quantumInput.value = 1; // Restablecer el valor predeterminado
+        memorySchemeSelect.value = 'contiguous';
+        memorySchemeSelect.querySelector('option[value="non-contiguous"]').disabled = true; // Habilitar contiguo
+        memorySchemeSelect.querySelector('option[value="contiguous"]').disabled = false;
+        updatePartitioningOptions();
     }
 });
 
@@ -148,3 +171,23 @@ function clearVariables(){
 
     if(ioSource.firstChild) ioSource.removeChild(ioSource.firstChild);
 }
+
+function toggleSimulation() {
+    // Cambiar el estado de la simulación
+    window.statusSimulation = !window.statusSimulation;
+
+    // Actualizar el texto y el estilo del botón según el estado
+    if (window.statusSimulation) {
+        toggleSimulationButton.textContent = 'Pause Simulation';
+        toggleSimulationButton.classList.remove('start-button');
+        toggleSimulationButton.classList.add('pause-button');
+    } else {
+        toggleSimulationButton.textContent = 'Start Simulation';
+        toggleSimulationButton.classList.remove('pause-button');
+        toggleSimulationButton.classList.add('start-button');
+    }
+
+    console.log(`Simulation status: ${window.statusSimulation ? 'Running' : 'Paused'}`);
+}
+
+toggleSimulationButton.addEventListener('click', toggleSimulation);

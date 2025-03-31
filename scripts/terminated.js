@@ -20,7 +20,7 @@ function renderTerminatedTable() {
     header.innerHTML = `
         <div>PID</div>
         <div>Status</div>
-        <div>Size</div>
+        <div>Size (Bytes)</div>
         <div>Arrival Time (Unit Time)</div>
         <div>Burst Time</div>
         <div>Completion Time (Unit Time)</div>
@@ -35,14 +35,23 @@ function renderTerminatedTable() {
         row.classList.add('terminated-row');
 
         const unitTime = window.appSettings.unitTime * 1000;
+        
         // Calcular tiempos relativos en función de window.referenceTime
-        const arrivalTime = (process.arrivalTime - window.referenceTime) / unitTime;
-        const relativeCompletionTime = process.completionTime !== null ? (process.completionTime - window.referenceTime)/unitTime : 'N/A';
-        process.calculateTurnaroundTime();
-        const turnaroundTime= process.turnaroundTime !== null ? process.turnaroundTime/unitTime : 'N/A'
-        process.calculateWaitingTime();
-        const waitingTime = process.waitingTime !== null ? process.waitingTime/unitTime : 'N/A';
+        const arrivalTime = ((process.arrivalTime - window.referenceTime) / unitTime).toFixed(3);
+        const relativeCompletionTime = process.completionTime !== null 
+            ? ((process.completionTime - window.referenceTime) / unitTime).toFixed(3) 
+            : 'N/A';
 
+        process.calculateTurnaroundTime();
+        const turnaroundTime = process.turnaroundTime !== null 
+            ? (process.turnaroundTime / unitTime).toFixed(3) 
+            : 'N/A';
+
+        process.calculateWaitingTime();
+        const waitingTime = process.waitingTime !== null 
+            ? (process.waitingTime / unitTime).toFixed(3) 
+            : 'N/A';
+            
         row.innerHTML = `
             <div>${process.pid}</div>
             <div>${process.status}</div>

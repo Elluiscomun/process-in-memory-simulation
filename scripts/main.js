@@ -5,7 +5,12 @@ window.memoryFrames = []; // Matriz global para almacenar los frames y bloques
 // Selecciona el contenedor principal donde se agregarán los frames
 const memoryTableContainer = document.querySelector('.main-memory-table');
 
-// Función para generar frames y almacenarlos en la matriz global
+/**
+ * Genera marcos de memoria (frames) y los agrega al arreglo memoryFrames.
+ * El tamaño de los marcos puede ser fijo o dinámico dependiendo de la configuración.
+ * 
+ * @param {number} amount - Cantidad de marcos de memoria a generar
+*/
 function generateMemoryframe(amount) {
     const baseIncrement = 0x1000; // Incremento en hexadecimal para cada bloque
     let frameSize = window.appSettings.frameSize; 

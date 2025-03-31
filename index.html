@@ -71,7 +71,7 @@
 
         <div class="controls">
             <button id="addProcess">Create Process</button>
-            <button id="addProcess">Pause Simulation</button>
+            <button id="toggleSimulation" class="pause-button">Pause Simulation</button>
             <button id="addProcess" onclick="openSettingsModal()">Settings</button>
         </div>
     </div>
@@ -94,7 +94,7 @@
                 <label for="memoryScheme">Memory Manager Scheme:</label>
                 <select id="memoryScheme" name="memoryScheme">
                     <option value="contiguous">Contiguous</option>
-                    <option value="non-contiguous">Non-Contiguous</option>
+                    <option value="non-contiguous" disabled>Non-Contiguous</option>
                 </select>
 
                 <!-- Partitioning -->
@@ -123,7 +123,7 @@
 
                 <!-- Quantum -->
                 <label for="quantum">Quantum (Unit Time):</label>
-                <input type="number" id="quantum" name="quantum" value="1" min="1">
+                <input type="number" id="quantum" name="quantum" value="1" min="1" disabled>
 
 
                 <!-- Save Button -->
