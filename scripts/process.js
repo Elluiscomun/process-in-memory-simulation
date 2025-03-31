@@ -106,7 +106,11 @@ function allocateProcessToMemory(process) {
     return true;
 }
 
-// Función para asignar un proceso a memoria no contigua
+/**
+ * Función para asignar un proceso a memoria no contigua.
+ * En este esquema, los bloques de memoria no necesitan estar contiguos.
+ * @param {Object} process - El proceso que se desea asignar a memoria.
+ */
 function allocateNoContinuosProcessToMemory(process) {
 
     const rowCapacity = getRowCapacity(); // Capacidad de cada fila
