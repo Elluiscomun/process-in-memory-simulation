@@ -17,7 +17,7 @@ window.waitingForIO = []; // Procesos esperando recursos
 window.terminatedProcesses = []; // Procesos terminados
 
 // Estructura global para la tabla de paginación
-window.pagingTable = [];
+window.pagingTable = []; // Tabla de paginación que almacena: {pid, frameNumber, burstTime, status}
 
 // Función para generar un tamaño de proceso aleatorio entre 4 y 40
 function generateProcessSize() {
